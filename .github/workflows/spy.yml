@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Code le kar aao
         uses: actions/checkout@v3
 
       - name: Python Setup
@@ -16,10 +16,10 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Libraries Install
-        # 👇 Sirf 'requests' install hoga (No Login tools)
-        run: pip install requests
+      - name: Special Tool Install Karo
+        # 👇 Yeh library sabse zaroori hai
+        run: pip install pytubefix
 
       - name: Jasoosi Shuru Karo
-        # 👇 Secrets ki zaroorat nahi hai
-        run: python spy.py
+        # 👇 '-u' ka matlab hai logs turant dikhao, rukna mat
+        run: python -u spy.py
