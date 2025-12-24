@@ -1,4 +1,4 @@
-name: Run Competitor Spy
+name: Run Single Video Spy
 
 on:
   workflow_dispatch:
@@ -17,9 +17,10 @@ jobs:
           python-version: '3.10'
 
       - name: Special Tool Install Karo
-        # 👇 Yeh library sabse zaroori hai
+        # 👇 Pytubefix install karenge jo YouTube ko unblock karega
         run: pip install pytubefix
 
       - name: Jasoosi Shuru Karo
-        # 👇 '-u' ka matlab hai logs turant dikhao, rukna mat
-        run: python -u spy.py
+        # 👇 Hum 'single_spy.py' chalayenge
+        # '-u' ka matlab hai logs turant dikhao
+        run: python -u single_spy.py
