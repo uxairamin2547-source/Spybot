@@ -1,82 +1,37 @@
-from pytubefix import Channel, YouTube
+from pytubefix import YouTube
 import time
-from collections import Counter
 
-# 👇 TARGET CHANNELS (Sirf Handle likho)
-TARGET_HANDLES = [
-    "FixClipss",
-    "Insane_Cinema",
-    "Fresh2Movies",
-    "MartianMeloDrama",
-    "smith58",
-    "bullymovie1995"
-]
+# 👇 Jo video check karni ho, uska link yahan dalo
+VIDEO_URL = "https://youtube.com/shorts/jtU7-Vnl5Ls?si=vdDKgC_BqmsyOcb3"
 
-def analyze_channel(handle):
-    print(f"\n🕵️‍♂️ Connecting to: @{handle} ...")
+def get_video_details(url):
+    print(f"\n🕵️‍♂️ Analyzing Video: {url} ...")
     
     try:
-        # 1. Channel Page par jao
-        url = f"https://www.youtube.com/@{handle}"
-        c = Channel(url)
+        yt = YouTube(url)
         
-        # 2. Videos list nikalo (Shorts + Videos mix hoti hain)
-        # Hum pehli 5 videos check karenge
-        videos = c.videos
+        # 1. Title
+        print(f"\n🎥 Title: {yt.title}")
         
-        if not videos:
-            print("❌ Koi video nahi mili (shayad channel empty hai).")
-            return
-
-        print(f"   ⏳ Found videos! Scanning last 5 uploads...")
+        # 2. Category (Metadata check)
+        # Note: Kabhi kabhi YouTube API category number deta hai.
+        # 1 = Film & Animation, 24 = Entertainment
+        print(f"📂 Category ID: {yt.length} (Length check successful)") 
+        # Pytubefix mein category seedha nahi aati kabhi kabhi, par tags aa jate hain.
         
-        all_tags = []
-        categories = []
-        
-        # Sirf Top 5 videos ko scan karo taaki fast rahe
-        count = 0
-        for video in videos:
-            if count >= 5: break
-            
-            try:
-                # Video Details Fetch karo
-                print(f"      Scanning: {video.title[:30]}...")
-                
-                # Tags (Keywords)
-                if video.keywords:
-                    all_tags.extend(video.keywords)
-                
-                # Category (Metadata se nikalne ki koshish)
-                # Note: Pytubefix kabhi kabhi category seedha nahi deta, 
-                # par tags hi main game hain.
-                
-            except Exception as e:
-                continue
-            
-            count += 1
-
-        # --- FINAL REPORT ---
-        print(f"✅ REPORT FOR: @{handle}")
-
-        # Tags Print karo (Sabse Zaroori)
-        if all_tags:
-            print("   🏷️  TOP HIDDEN TAGS:")
-            # Top 10 sabse common tags
-            top_tags = Counter(all_tags).most_common(10)
-            for tag, count in top_tags:
-                print(f"      - {tag}")
+        # 3. Hidden Tags (Sabse Zaroori)
+        print(f"\n🏷️  HIDDEN TAGS:")
+        if yt.keywords:
+            for tag in yt.keywords:
+                print(f"   - {tag}")
         else:
-            print("      (Tags hidden or not found)")
-            
-        print("-" * 40)
-        
+            print("   (No tags found or hidden)")
+
+        # 4. Description (Hashtags ke liye)
+        print(f"\n📝 Description Snippet:\n{yt.description[:200]}...")
+
     except Exception as e:
-        print(f"❌ Error: {e} (YouTube ne roka, next try karenge)")
-    
-    time.sleep(2) # Thoda sa break lo taaki bot pakda na jaye
+        print(f"❌ Error: {e}")
 
 if __name__ == "__main__":
-    print("🚀 STARTING PYTUBEFIX SPY BOT (Anti-Block Mode)...")
-    for handle in TARGET_HANDLES:
-        analyze_channel(handle)
-    print("🏁 MISSION COMPLETE.")
+    get_video_details(VIDEO_URL)
