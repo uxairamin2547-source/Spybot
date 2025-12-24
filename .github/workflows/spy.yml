@@ -17,12 +17,9 @@ jobs:
           python-version: '3.10'
 
       - name: Libraries Install
-        run: pip install google-api-python-client google-auth-oauthlib
+        # 👇 Sirf 'requests' install hoga (No Login tools)
+        run: pip install requests
 
       - name: Jasoosi Shuru Karo
-        env:
-          # 👇 AAPKE PURANE SECRETS USE HONGE
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+        # 👇 Secrets ki zaroorat nahi hai
         run: python spy.py
