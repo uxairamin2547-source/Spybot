@@ -1,26 +1,32 @@
-name: Run Single Video Spy
+from pytubefix import YouTube
+import time
 
-on:
-  workflow_dispatch:
+# 👇 Jo video check karni ho, uska link yahan dalo
+VIDEO_URL = "https://youtube.com/shorts/jtU7-Vnl5Ls?si=vdDKgC_BqmsyOcb3"
 
-jobs:
-  spy-job:
-    runs-on: ubuntu-latest
+def get_video_details(url):
+    print(f"\n🕵️‍♂️ Analyzing Video: {url} ...")
+    
+    try:
+        yt = YouTube(url)
+        
+        # 1. Title
+        print(f"\n🎥 Title: {yt.title}")
+        
+        # 2. Description Check for Hashtags
+        print(f"\n📝 Description Snippet:")
+        print(yt.description[:200]) # Pehle 200 words dikhayega
+        
+        # 3. Hidden Tags (Keywords)
+        print(f"\n🏷️  HIDDEN TAGS:")
+        if yt.keywords:
+            for tag in yt.keywords:
+                print(f"   - {tag}")
+        else:
+            print("   (No hidden tags found inside metadata)")
 
-    steps:
-      - name: Code le kar aao
-        uses: actions/checkout@v3
+    except Exception as e:
+        print(f"❌ Error: {e}")
 
-      - name: Python Setup
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Special Tool Install Karo
-        # 👇 Pytubefix install karenge jo YouTube ko unblock karega
-        run: pip install pytubefix
-
-      - name: Jasoosi Shuru Karo
-        # 👇 Hum 'single_spy.py' chalayenge
-        # '-u' ka matlab hai logs turant dikhao
-        run: python -u single_spy.py
+if __name__ == "__main__":
+    get_video_details(VIDEO_URL)
