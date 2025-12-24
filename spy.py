@@ -1,32 +1,77 @@
-from pytubefix import YouTube
-import time
+import os
+from googleapiclient.discovery import build
 
-# 👇 Jo video check karni ho, uska link yahan dalo
-VIDEO_URL = "https://youtube.com/shorts/jtU7-Vnl5Ls?si=vdDKgC_BqmsyOcb3"
+# 👇 JIS VIDEO KI JASOOSI KARNI HAI, USKI ID YAHAN DALO
+# (Link: https://youtube.com/shorts/jtU7-Vnl5Ls... -> ID: jtU7-Vnl5Ls)
+VIDEO_ID = "jtU7-Vnl5Ls"
 
-def get_video_details(url):
-    print(f"\n🕵️‍♂️ Analyzing Video: {url} ...")
+# 👇 Category ID ka Map (YouTube codes ko English mein badalne ke liye)
+CATEGORY_MAP = {
+    "1": "Film & Animation",
+    "2": "Autos & Vehicles",
+    "10": "Music",
+    "15": "Pets & Animals",
+    "17": "Sports",
+    "20": "Gaming",
+    "22": "People & Blogs",
+    "23": "Comedy",
+    "24": "Entertainment",
+    "25": "News & Politics",
+    "26": "Howto & Style",
+    "27": "Education",
+    "28": "Science & Technology"
+}
+
+def spy_video():
+    # GitHub Secret se API Key uthayega
+    api_key = os.environ.get("API_KEY")
     
+    if not api_key:
+        print("❌ Error: 'API_KEY' nahi mila! GitHub Secrets check karo.")
+        return
+
     try:
-        yt = YouTube(url)
+        # YouTube se connection
+        youtube = build("youtube", "v3", developerKey=api_key)
         
-        # 1. Title
-        print(f"\n🎥 Title: {yt.title}")
+        print(f"🕵️‍♂️ Analyzing Video ID: {VIDEO_ID} ...")
         
-        # 2. Description Check for Hashtags
-        print(f"\n📝 Description Snippet:")
-        print(yt.description[:200]) # Pehle 200 words dikhayega
+        # Data maango
+        request = youtube.videos().list(
+            part="snippet",
+            id=VIDEO_ID
+        )
+        response = request.execute()
+
+        if not response['items']:
+            print("❌ Video nahi mili (ID galat ho sakti hai).")
+            return
+
+        item = response['items'][0]['snippet']
         
-        # 3. Hidden Tags (Keywords)
-        print(f"\n🏷️  HIDDEN TAGS:")
-        if yt.keywords:
-            for tag in yt.keywords:
+        # --- REPORT PRINT KARO ---
+        print("\n" + "="*40)
+        print(f"🎥 TITLE: {item['title']}")
+        
+        # Category
+        cat_id = item.get('categoryId', 'Unknown')
+        cat_name = CATEGORY_MAP.get(cat_id, f"Other (ID: {cat_id})")
+        print(f"📂 CATEGORY: {cat_name}")
+        
+        # Tags (Sabse Zaroori)
+        tags = item.get('tags', [])
+        
+        if tags:
+            print(f"\n🏷️  HIDDEN TAGS ({len(tags)} found):")
+            for tag in tags:
                 print(f"   - {tag}")
         else:
-            print("   (No hidden tags found inside metadata)")
+            print("\n🏷️  TAGS: Is video mein koi tags nahi hain (Khali hai).")
+            
+        print("="*40 + "\n")
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ Connection Error: {e}")
 
 if __name__ == "__main__":
-    get_video_details(VIDEO_URL)
+    spy_video()
