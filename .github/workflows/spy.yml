@@ -1,4 +1,4 @@
-name: Run Single Video Spy
+name: Spy Single Video (Final)
 
 on:
   workflow_dispatch:
@@ -8,45 +8,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Code le kar aao
+      - name: Setup
         uses: actions/checkout@v3
 
-      - name: Python Setup
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Special Tool Install Karo
-        run: pip install pytubefix
-
-      - name: Jasoosi Shuru Karo (Embedded Code)
-        shell: python
+      - name: Install Powerful Tool (yt-dlp)
+        # Hum Python script nahi, seedha yt-dlp tool install karenge
         run: |
-          from pytubefix import YouTube
-          import time
+          sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+          sudo chmod a+rx /usr/local/bin/yt-dlp
 
-          # 👇 TARGET VIDEO LINK
-          VIDEO_URL = "https://youtube.com/shorts/jtU7-Vnl5Ls?si=vdDKgC_BqmsyOcb3"
-
-          print(f"\n🕵️‍♂️ Analyzing Video: {VIDEO_URL} ...")
-
-          try:
-              yt = YouTube(VIDEO_URL)
-              
-              # 1. Title
-              print(f"\n🎥 Title: {yt.title}")
-              
-              # 2. Description
-              desc = yt.description if yt.description else "No description"
-              print(f"\n📝 Description Snippet:\n{desc[:200]}...")
-              
-              # 3. Hidden Tags
-              print(f"\n🏷️  HIDDEN TAGS:")
-              if yt.keywords:
-                  for tag in yt.keywords:
-                      print(f"   - {tag}")
-              else:
-                  print("   (No hidden tags found inside metadata)")
-                  
-          except Exception as e:
-              print(f"❌ Error: {e}")
+      - name: Jasoosi Shuru (Android Mode)
+        # 👇 Yeh command YouTube ko lagega ki Android Phone se aayi hai
+        run: |
+          echo "--------------------------------------"
+          echo "🕵️‍♂️ Analyzing Video..."
+          echo "--------------------------------------"
+          
+          yt-dlp "https://youtube.com/shorts/jtU7-Vnl5Ls" \
+          --print "🎥 TITLE: %(title)s" \
+          --print "📂 CATEGORY: %(categories)s" \
+          --print "🏷️  TAGS: %(tags)s" \
+          --extractor-args "youtube:player_client=android" \
+          --no-warnings \
+          --ignore-errors
