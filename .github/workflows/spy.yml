@@ -1,4 +1,4 @@
-name: Spy Single Video (Final)
+name: Spy Video with API Key
 
 on:
   workflow_dispatch:
@@ -8,26 +8,91 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Powerful Tool (yt-dlp)
-        # Hum Python script nahi, seedha yt-dlp tool install karenge
-        run: |
-          sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
-          sudo chmod a+rx /usr/local/bin/yt-dlp
+      - name: Python Setup
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-      - name: Jasoosi Shuru (Android Mode)
-        # 👇 Yeh command YouTube ko lagega ki Android Phone se aayi hai
+      - name: Google Library Install
+        run: pip install google-api-python-client
+
+      - name: Jasoosi Shuru (Official API)
+        env:
+          # 👇 Yahan wo Secret automatically connect hoga
+          DEVELOPER_KEY: ${{ secrets.API_KEY }}
+        shell: python
         run: |
-          echo "--------------------------------------"
-          echo "🕵️‍♂️ Analyzing Video..."
-          echo "--------------------------------------"
-          
-          yt-dlp "https://youtube.com/shorts/jtU7-Vnl5Ls" \
-          --print "🎥 TITLE: %(title)s" \
-          --print "📂 CATEGORY: %(categories)s" \
-          --print "🏷️  TAGS: %(tags)s" \
-          --extractor-args "youtube:player_client=android" \
-          --no-warnings \
-          --ignore-errors
+          import os
+          from googleapiclient.discovery import build
+
+          # 👇 TARGET VIDEO ID (Aapki link se nikala: jtU7-Vnl5Ls)
+          VIDEO_ID = "jtU7-Vnl5Ls"
+
+          # Category Names ka Map
+          CATEGORY_MAP = {
+              "1": "Film & Animation",
+              "2": "Autos & Vehicles",
+              "10": "Music",
+              "15": "Pets & Animals",
+              "17": "Sports",
+              "20": "Gaming",
+              "22": "People & Blogs",
+              "23": "Comedy",
+              "24": "Entertainment",
+              "25": "News & Politics",
+              "26": "Howto & Style",
+              "27": "Education",
+              "28": "Science & Technology"
+          }
+
+          def spy_video():
+              api_key = os.environ.get("DEVELOPER_KEY")
+              if not api_key:
+                  print("❌ Error: GitHub Secrets mein 'API_KEY' nahi mila!")
+                  return
+
+              try:
+                  youtube = build("youtube", "v3", developerKey=api_key)
+                  
+                  print(f"🕵️‍♂️ Connecting to YouTube API for Video: {VIDEO_ID}...")
+                  
+                  request = youtube.videos().list(
+                      part="snippet",
+                      id=VIDEO_ID
+                  )
+                  response = request.execute()
+
+                  if not response['items']:
+                      print("❌ Video details nahi mili (Shayad ID galat hai).")
+                      return
+
+                  item = response['items'][0]['snippet']
+                  
+                  # --- REPORT ---
+                  print("\n" + "="*40)
+                  print(f"🎥 TITLE: {item['title']}")
+                  
+                  # Category
+                  cat_id = item.get('categoryId', 'Unknown')
+                  cat_name = CATEGORY_MAP.get(cat_id, f"Other (ID: {cat_id})")
+                  print(f"📂 CATEGORY: {cat_name}")
+                  
+                  # Tags
+                  tags = item.get('tags', [])
+                  if tags:
+                      print(f"🏷️  HIDDEN TAGS ({len(tags)} found):")
+                      for tag in tags:
+                          print(f"   - {tag}")
+                  else:
+                      print("🏷️  TAGS: Is video mein koi tags nahi hain.")
+                  
+                  print("="*40 + "\n")
+
+              except Exception as e:
+                  print(f"❌ API Error: {e}")
+
+          if __name__ == "__main__":
+              spy_video()
