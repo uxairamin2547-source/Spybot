@@ -1,32 +1,52 @@
-from pytubefix import YouTube
-import time
+name: Run Single Video Spy
 
-# 👇 Jo video check karni ho, uska link yahan dalo
-VIDEO_URL = "https://youtube.com/shorts/jtU7-Vnl5Ls?si=vdDKgC_BqmsyOcb3"
+on:
+  workflow_dispatch:
 
-def get_video_details(url):
-    print(f"\n🕵️‍♂️ Analyzing Video: {url} ...")
-    
-    try:
-        yt = YouTube(url)
-        
-        # 1. Title
-        print(f"\n🎥 Title: {yt.title}")
-        
-        # 2. Description Check for Hashtags
-        print(f"\n📝 Description Snippet:")
-        print(yt.description[:200]) # Pehle 200 words dikhayega
-        
-        # 3. Hidden Tags (Keywords)
-        print(f"\n🏷️  HIDDEN TAGS:")
-        if yt.keywords:
-            for tag in yt.keywords:
-                print(f"   - {tag}")
-        else:
-            print("   (No hidden tags found inside metadata)")
+jobs:
+  spy-job:
+    runs-on: ubuntu-latest
 
-    except Exception as e:
-        print(f"❌ Error: {e}")
+    steps:
+      - name: Code le kar aao
+        uses: actions/checkout@v3
 
-if __name__ == "__main__":
-    get_video_details(VIDEO_URL)
+      - name: Python Setup
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Special Tool Install Karo
+        run: pip install pytubefix
+
+      - name: Jasoosi Shuru Karo (Embedded Code)
+        shell: python
+        run: |
+          from pytubefix import YouTube
+          import time
+
+          # 👇 TARGET VIDEO LINK
+          VIDEO_URL = "https://youtube.com/shorts/jtU7-Vnl5Ls?si=vdDKgC_BqmsyOcb3"
+
+          print(f"\n🕵️‍♂️ Analyzing Video: {VIDEO_URL} ...")
+
+          try:
+              yt = YouTube(VIDEO_URL)
+              
+              # 1. Title
+              print(f"\n🎥 Title: {yt.title}")
+              
+              # 2. Description
+              desc = yt.description if yt.description else "No description"
+              print(f"\n📝 Description Snippet:\n{desc[:200]}...")
+              
+              # 3. Hidden Tags
+              print(f"\n🏷️  HIDDEN TAGS:")
+              if yt.keywords:
+                  for tag in yt.keywords:
+                      print(f"   - {tag}")
+              else:
+                  print("   (No hidden tags found inside metadata)")
+                  
+          except Exception as e:
+              print(f"❌ Error: {e}")
