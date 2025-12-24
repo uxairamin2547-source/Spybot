@@ -29,7 +29,7 @@ jobs:
           from googleapiclient.discovery import build
 
           # 👇 TARGET VIDEO ID (Aapki link se nikala: jtU7-Vnl5Ls)
-          VIDEO_ID = "eBJQ4Qr0PZY"
+          VIDEO_ID = "ePk2Mf1V7lU"
 
           # Category Names ka Map
           CATEGORY_MAP = {
