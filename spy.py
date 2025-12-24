@@ -1,9 +1,10 @@
 import yt_dlp
 import datetime
 from collections import Counter
+import time
+import random
 
-# 👇 YAHAN UN CHANNELS KE NAAM LIKHO JINHE "SPY" KARNA HAI
-# (Maine aapke diye hue top competitors daal diye hain)
+# 👇 TARGET CHANNELS
 TARGET_CHANNELS = [
     "FixClipss",
     "Insane_Cinema",
@@ -16,71 +17,73 @@ TARGET_CHANNELS = [
 def analyze_channel(username):
     print(f"\n🕵️‍♂️ Analyzing: {username} ...")
     
+    # Android Client Trick use karenge
     url = f"https://www.youtube.com/@{username}/shorts"
     
-    # Options: Sirf Data nikalo, Video download mat karo (Fast)
     ydl_opts = {
         'quiet': True,
-        'extract_flat': True,
-        'playlist_end': 10, # 👈 Last 10 videos check karega
+        'extract_flat': True, 
+        'playlist_end': 5,  # 👈 Sirf last 5 videos check karenge (Safe Mode)
         'ignoreerrors': True,
+        # 👇 JAADU: Hum khud ko 'Android Phone' batayenge
+        'extractor_args': {'youtube': {'player_client': ['android']}},
+        'sleep_interval': 2 # Har request ke baad 2 sec rukenge
     }
 
-    upload_hours = []
     all_tags = []
     categories = []
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # 1. Channel Page Scan karo
+            # 1. Channel Scan
+            print(f"   📲 Connecting as Android App...")
             info = ydl.extract_info(url, download=False)
             
             if 'entries' not in info:
-                print("❌ Channel not found or no Shorts.")
+                print("❌ Channel access denied (Still blocked).")
                 return
 
-            # 2. Har video ke andar ja kar details nikalo
-            print(f"   ⏳ Scanning last {len(info['entries'])} videos...")
+            print(f"   ⏳ Found videos, digging deeper...")
             
+            # 2. Deep Scan
             for entry in info['entries']:
+                if not entry: continue
                 video_url = entry.get('url')
-                if not video_url: continue
                 
-                # Deep Scan individual video for Tags & Time
-                with yt_dlp.YoutubeDL({'quiet': True}) as v_ydl:
-                    vid_info = v_ydl.extract_info(video_url, download=False)
-                    
-                    # A. Time Nikalo
-                    if 'upload_date' in vid_info:
-                        # Note: YouTube often hides exact time, but we get the Date.
-                        # We will try to guess logic or just show tags/category which is key.
-                        pass 
-
-                    # B. Hidden Tags Nikalo
-                    if 'tags' in vid_info and vid_info['tags']:
-                        all_tags.extend(vid_info['tags'])
-                    
-                    # C. Category Nikalo
-                    if 'categories' in vid_info and vid_info['categories']:
-                        categories.extend(vid_info['categories'])
+                # Individual video scan
+                # Yahan bhi Android bankar jayenge
+                with yt_dlp.YoutubeDL({
+                    'quiet': True,
+                    'extractor_args': {'youtube': {'player_client': ['android']}}
+                }) as v_ydl:
+                    try:
+                        vid_info = v_ydl.extract_info(video_url, download=False)
+                        
+                        # Tags nikalo
+                        if 'tags' in vid_info and vid_info['tags']:
+                            all_tags.extend(vid_info['tags'])
+                        
+                        # Category nikalo
+                        if 'categories' in vid_info and vid_info['categories']:
+                            categories.extend(vid_info['categories'])
+                            
+                    except: continue
 
     except Exception as e:
-        print(f"⚠️ Error: {e}")
+        print(f"⚠️ Blocked: {e}")
         return
 
-    # --- REPORT GENERATION ---
+    # --- REPORT ---
     print(f"✅ REPORT FOR: {username}")
     
-    # 1. Best Category
     if categories:
         common_cat = Counter(categories).most_common(1)[0][0]
         print(f"   📂 Main Category: {common_cat}")
     else:
         print("   📂 Category: Not Found")
 
-    # 2. Top Hidden Tags
     if all_tags:
-        print("   🏷️  TOP 10 HIDDEN TAGS:")
+        print("   🏷️  TOP HIDDEN TAGS:")
         top_tags = Counter(all_tags).most_common(10)
         for tag, count in top_tags:
             print(f"      - {tag}")
@@ -88,9 +91,10 @@ def analyze_channel(username):
         print("      (No hidden tags found)")
 
     print("-" * 40)
+    time.sleep(3) # Channel change karne se pehle 3 sec ruko
 
 if __name__ == "__main__":
-    print("🚀 STARTING SPY BOT...")
+    print("🚀 STARTING ANDROID SPY BOT...")
     for user in TARGET_CHANNELS:
         analyze_channel(user)
-    print("🏁 SPY MISSION COMPLETE.")
+    print("🏁 MISSION COMPLETE.")
