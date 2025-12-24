@@ -13,22 +13,17 @@ def get_video_details(url):
         # 1. Title
         print(f"\n🎥 Title: {yt.title}")
         
-        # 2. Category (Metadata check)
-        # Note: Kabhi kabhi YouTube API category number deta hai.
-        # 1 = Film & Animation, 24 = Entertainment
-        print(f"📂 Category ID: {yt.length} (Length check successful)") 
-        # Pytubefix mein category seedha nahi aati kabhi kabhi, par tags aa jate hain.
+        # 2. Description Check for Hashtags
+        print(f"\n📝 Description Snippet:")
+        print(yt.description[:200]) # Pehle 200 words dikhayega
         
-        # 3. Hidden Tags (Sabse Zaroori)
+        # 3. Hidden Tags (Keywords)
         print(f"\n🏷️  HIDDEN TAGS:")
         if yt.keywords:
             for tag in yt.keywords:
                 print(f"   - {tag}")
         else:
-            print("   (No tags found or hidden)")
-
-        # 4. Description (Hashtags ke liye)
-        print(f"\n📝 Description Snippet:\n{yt.description[:200]}...")
+            print("   (No hidden tags found inside metadata)")
 
     except Exception as e:
         print(f"❌ Error: {e}")
